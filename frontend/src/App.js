@@ -1,10 +1,43 @@
+import React from 'react';
+
 import Map, { Marker, Popup } from 'react-map-gl';
 import LocationOn from '@material-ui/icons/LocationOn';
-import Star from "@material-ui/icons/Star";
+import Rating from '@mui/material/Rating';
+
+import { useEffect, useState } from 'react';
+
+import axios from 'axios';
+
+import { format } from "timeago.js"
+
 import './app.css'
 
 function App() {
   let zoom = 5;
+  const [pins, setPins] = useState([]);
+  const [currentPlaceId, setCurrentPlaceId] = useState();
+
+  useEffect(() => {
+    const getPins = async () => {
+      try {
+        const response = await axios.get("/pins");
+        setPins(response.data)
+      } catch (error) {
+        console.error(error)
+      }
+    };
+    getPins();
+  }, []);
+
+  const handleMarkerHover = (id) => {
+    console.log(id)
+    setCurrentPlaceId(id);
+  }
+
+  const handleMouseLeave = () => {
+    setCurrentPlaceId(null);
+  }
+
   return (
     <>
       <Map
@@ -14,36 +47,54 @@ function App() {
           latitude: 48.5,
           zoom: zoom
         }}
-        style={{ width: "100vw", height: "100vh" }}
-        mapStyle="mapbox://styles/safak/cknndpyfq268f17p53nmpwira"
+        style={{ width: '100vw', height: '100vh' }}
+        mapStyle="mapbox://styles/mapbox/streets-v9"
       >
-        <Marker
-          latitude={48.858093}
-          longitude={2.294694}
-        >
-          <LocationOn style={{ fontSize: zoom * 7, color: 'slateblue' }} />
-        </Marker>
-        {/* <Popup longitude={2.294694} latitude={48.858093}
-          anchor="left"
-        >
-          <div className="card">
-            <label>Place</label>
-            <h4 className='place'>Eiffel Tower</h4>
-            <label>Review</label>
-            <p className='desc'>Beutiful place. I like it.</p>
-            <label>Rating</label>
-            <div className='stars'>
-              <Star className='star' />
-              <Star className='star' />
-              <Star className='star' />
-              <Star className='star' />
-              <Star className='star' />
-            </div>
-            <label>Ingormation</label>
-            <span className='username'>Created by <b>safak</b></span>
-            <span className='date'>1 hour ago</span>
-          </div>
-        </Popup> */}
+        {pins.map((pin) => (
+          <React.Fragment key={pin._id}>
+            <Marker
+              latitude={pin.lat}
+              longitude={pin.long}
+            >
+              <LocationOn
+                style={{
+                  fontSize: zoom * 7,
+                  color: 'slateblue',
+                  cursor: 'pointer'
+                }}
+                onMouseOver={() => handleMarkerHover(pin._id)}
+                onMouseLeave={() => handleMouseLeave()}
+
+              />
+            </Marker>
+
+            {currentPlaceId === pin._id ?
+              (
+                <Popup
+                  key={pin._id}
+                  longitude={pin.long}
+                  latitude={pin.lat}
+                  anchor="left"
+                  offset={[10, -7]}
+                >
+                  <div className="card">
+                    <label>Place</label>
+                    <h4 className='place'>{pin.title}</h4>
+                    <label>Review</label>
+                    <p className='desc'>{pin.desc}</p>
+                    <label>Rating</label>
+                    <Rating name="read-only" value={pin.rating} readOnly />
+                    <label>Information</label>
+                    <span className='username'>Created by <b>{pin.username}</b></span>
+                    <span className='date'>{format(pin.createdAt)}</span>
+                  </div>
+                </Popup>
+              ) :
+              <>
+              </>}
+          </React.Fragment>
+        ))}
+
       </Map >
     </>
 
