@@ -13,9 +13,24 @@ import { format } from "timeago.js"
 import './app.css'
 
 function App() {
+  const currentUser = 'Zakhar'
   let zoom = 5;
+
+
+  const [viewState, setViewState] = React.useState({
+    longitude: 33.2304,
+    latitude: 48.5,
+    zoom: zoom
+  });
+
   const [pins, setPins] = useState([]);
-  const [currentPlaceId, setCurrentPlaceId] = useState();
+  const [currentPlaceId, setCurrentPlaceId] = useState('');
+  const [newPlace, setNewPlace] = useState(null);
+
+  const [title, setTitle] = useState(null);
+  const [desc, setDesc] = useState(null);
+  const [rating, setRating] = useState(0);
+
 
   useEffect(() => {
     const getPins = async () => {
@@ -30,28 +45,62 @@ function App() {
   }, []);
 
   const handleMarkerHover = (id) => {
-    console.log(id)
-    setCurrentPlaceId(id);
+    setTimeout(() => {
+      setCurrentPlaceId(id)
+    }, 10);
   }
 
-  const handleMouseLeave = () => {
+  const handleOnClose = () => {
     setCurrentPlaceId(null);
   }
+
+  const handleAddClick = (e) => {
+    const { lng, lat } = e.lngLat;
+    console.log("Clicked coordinates:", lng, lat);
+    setNewPlace({ lng, lat })
+  }
+
+  const handleNewPlaceOnClose = () => {
+    setNewPlace(null)
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const newPin = {
+      username: currentUser,
+      title,
+      desc,
+      rating,
+      lat: newPlace.lat,
+      long: newPlace.lng,
+    }
+
+    try {
+      const response = await axios.post("/pins", newPin);
+      setPins([...pins, response.data]);
+      setNewPlace(null)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    // Код, который нужно выполнить после обновления состояния currentPlaceId
+    console.log("currentPlaceId updated to:", currentPlaceId);
+  }, [currentPlaceId]);
 
   return (
     <>
       <Map
         mapboxAccessToken={process.env.REACT_APP_MAPTOKEN}
-        initialViewState={{
-          longitude: 33.2304,
-          latitude: 48.5,
-          zoom: zoom
-        }}
+        {...viewState}
+        onMove={evt => setViewState(evt.viewState)}
         style={{ width: '100vw', height: '100vh' }}
         mapStyle="mapbox://styles/mapbox/streets-v9"
+        onDblClick={handleAddClick}
       >
         {pins.map((pin) => (
-          <React.Fragment key={pin._id}>
+          <React.Fragment key={pin._id} >
             <Marker
               latitude={pin.lat}
               longitude={pin.long}
@@ -59,12 +108,10 @@ function App() {
               <LocationOn
                 style={{
                   fontSize: zoom * 7,
-                  color: 'slateblue',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  color: pin.username == currentUser ? 'tomato' : 'slateblue'
                 }}
-                onMouseOver={() => handleMarkerHover(pin._id)}
-                onMouseLeave={() => handleMouseLeave()}
-
+                onClick={() => handleMarkerHover(pin._id)}
               />
             </Marker>
 
@@ -76,15 +123,16 @@ function App() {
                   latitude={pin.lat}
                   anchor="left"
                   offset={[10, -7]}
+                  onClose={() => handleOnClose()}
                 >
                   <div className="card">
-                    <label>Place</label>
+                    <label className='label'>Place</label>
                     <h4 className='place'>{pin.title}</h4>
-                    <label>Review</label>
+                    <label className='label'>Review</label>
                     <p className='desc'>{pin.desc}</p>
-                    <label>Rating</label>
+                    <label className='label'>Rating</label>
                     <Rating name="read-only" value={pin.rating} readOnly />
-                    <label>Information</label>
+                    <label className='label'>Information</label>
                     <span className='username'>Created by <b>{pin.username}</b></span>
                     <span className='date'>{format(pin.createdAt)}</span>
                   </div>
@@ -94,7 +142,40 @@ function App() {
               </>}
           </React.Fragment>
         ))}
-
+        {newPlace && (
+          <Popup
+            longitude={newPlace.lng}
+            latitude={newPlace.lat}
+            anchor="left"
+            offset={[10, -7]}
+            onClose={() => handleNewPlaceOnClose()}
+          >
+            <form
+              onSubmit={handleSubmit}>
+              <label className='label'>Title</label>
+              <input
+                placeholder='Enter a title'
+                onChange={(e) => setTitle(e.target.value)} />
+              <label className='label'>Review</label>
+              <textarea
+                placeholder='Say us something about this place.'
+                onChange={(e) => setDesc(e.target.value)} />
+              <label className='label'>Rating</label>
+              <Rating
+                name="simple-controlled"
+                size="medium"
+                value={rating}
+                onChange={(e, newValue) => {
+                  setRating(newValue);
+                  console.log(rating)
+                }}
+              />
+              <button className="submitButton" type="submit">
+                Add pin
+              </button>
+            </form>
+          </Popup>
+        )}
       </Map >
     </>
 

@@ -5,7 +5,7 @@
   flex-direction: column;
   justify-content: space-around;
 }
-label {
+.label {
   width: max-content;
   color: tomato;
   font-size: 13px;
@@ -20,4 +20,32 @@ label {
 }
 .date {
   font-size: 12px;
+}
+form {
+  width: 250px;
+  height: 250px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+input,
+textarea {
+  border: none;
+  border-bottom: 1px solid gray;
+}
+textarea::placeholder {
+  font-size: 12px;
+  color: rgb(155, 155, 155);
+}
+input:focus,
+textarea:focus {
+  outline: none;
+}
+.submitButton {
+  border: none;
+  padding: 5px;
+  border-radius: 5px;
+  color: white;
+  background-color: tomato;
+  cursor: pointer;
 }
