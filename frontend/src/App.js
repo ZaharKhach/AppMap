@@ -11,9 +11,9 @@ import axios from 'axios';
 import { format } from "timeago.js"
 
 import './app.css'
+import Register from './components/register';
 
 function App() {
-  const currentUser = 'Zakhar'
   let zoom = 5;
 
 
@@ -22,6 +22,7 @@ function App() {
     latitude: 48.5,
     zoom: zoom
   });
+  const [currentUser, setCurrentUser] = useState(null)
 
   const [pins, setPins] = useState([]);
   const [currentPlaceId, setCurrentPlaceId] = useState('');
@@ -31,6 +32,8 @@ function App() {
   const [desc, setDesc] = useState(null);
   const [rating, setRating] = useState(0);
 
+  const [showRegister, setShowRegister] = useState(false);
+  const [showLogin, setShowLogin] = useState(false)
 
   useEffect(() => {
     const getPins = async () => {
@@ -95,7 +98,7 @@ function App() {
         mapboxAccessToken={process.env.REACT_APP_MAPTOKEN}
         {...viewState}
         onMove={evt => setViewState(evt.viewState)}
-        style={{ width: '100vw', height: '100vh' }}
+        style={{ width: '100vw', height: '100vh', position: 'relative' }}
         mapStyle="mapbox://styles/mapbox/streets-v9"
         onDblClick={handleAddClick}
       >
@@ -176,6 +179,19 @@ function App() {
             </form>
           </Popup>
         )}
+        {currentUser ? (
+          <button className='button logout'>Log out</button>
+        ) : (
+          <div className='buttonsBlock__startButtons'>
+            <button
+              className='button login'
+              onClick={() => setShowLogin(true)}>Login</button>
+            <button
+              className='button register'
+              onClick={() => setShowRegister(true)}  >Register</button>
+          </div>
+        )}
+        {showRegister && <Register setShowRegister={setShowRegister} />}
       </Map >
     </>
 

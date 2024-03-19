@@ -24,7 +24,7 @@ router.post('/register', async (req, res) => {
     }
 })
 
-//loginz
+//login
 router.post('/login', async (req, res) => {
     try {
         //find user
