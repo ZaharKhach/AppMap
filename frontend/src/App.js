@@ -24,7 +24,7 @@ function App() {
     zoom: zoom,
   });
 
-  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(myStorage.getItem('user'));
 
   const [pins, setPins] = useState([]);
   const [currentPlaceId, setCurrentPlaceId] = useState("");
@@ -88,12 +88,10 @@ function App() {
       console.log(error);
     }
   };
-
-  useEffect(() => {
-    // Код, который нужно выполнить после обновления состояния currentPlaceId
-    console.log("currentPlaceId updated to:", currentPlaceId);
-  }, [currentPlaceId]);
-
+  const handleLogoutClick = () => {
+    myStorage.removeItem('user');
+    setCurrentUser(null)
+  }
   return (
     <>
       <Map
@@ -183,7 +181,7 @@ function App() {
         {currentUser ? (
           <button
             className="button logout"
-            onClick={ }
+            onClick={handleLogoutClick}
           >Log out</button>
         ) : (
           <div className="buttonsBlock__startButtons">
