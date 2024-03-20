@@ -14,6 +14,8 @@ import "./app.css";
 import Register from "./components/register";
 import Login from "./components/login";
 
+import Pins from "./components/pins/Pins";
+
 function App() {
   const myStorage = window.localStorage;
 
@@ -102,47 +104,8 @@ function App() {
         mapStyle="mapbox://styles/mapbox/streets-v9"
         onDblClick={handleAddClick}
       >
-        {pins.map((pin) => (
-          <React.Fragment key={pin._id}>
-            <Marker latitude={pin.lat} longitude={pin.long}>
-              <LocationOn
-                style={{
-                  fontSize: zoom * 7,
-                  cursor: "pointer",
-                  color: pin.username == currentUser ? "tomato" : "slateblue",
-                }}
-                onClick={() => handleMarkerClick(pin._id)}
-              />
-            </Marker>
+        <Pins />
 
-            {currentPlaceId === pin._id ? (
-              <Popup
-                key={pin._id}
-                longitude={pin.long}
-                latitude={pin.lat}
-                anchor="left"
-                offset={[10, -7]}
-                onClose={() => handleOnClose()}
-              >
-                <div className="card">
-                  <label className="label">Place</label>
-                  <h4 className="place">{pin.title}</h4>
-                  <label className="label">Review</label>
-                  <p className="desc">{pin.desc}</p>
-                  <label className="label">Rating</label>
-                  <Rating name="read-only" value={pin.rating} readOnly />
-                  <label className="label">Information</label>
-                  <span className="username">
-                    Created by <b>{pin.username}</b>
-                  </span>
-                  <span className="date">{format(pin.createdAt)}</span>
-                </div>
-              </Popup>
-            ) : (
-              <></>
-            )}
-          </React.Fragment>
-        ))}
         {newPlace && (
           <Popup
             longitude={newPlace.lng}

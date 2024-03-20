@@ -4,6 +4,9 @@ import App from './App';
 
 import { Provider } from 'react-redux';
 import store from './store/store';
+import { fetchPins } from './slices/globalSlice';
+
+store.dispatch(fetchPins())
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

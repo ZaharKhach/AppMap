@@ -1,11 +1,11 @@
-import { createEntityAdapter, createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createEntityAdapter, createSlice, createAsyncThunk, createSelector } from "@reduxjs/toolkit";
 import axios from "axios";
 
 const entityAdapter = createEntityAdapter();
 
 const myStorage = window.localStorage;
 
-const initialState = entityAdapter.getInitialState({
+const initialState = {
     currentUser: myStorage.getItem('user'),
     pins: [],
     currentPlaceId: "",
@@ -23,10 +23,11 @@ const initialState = entityAdapter.getInitialState({
         zoom: 5,
     },
     loadingStatus: 'idle'
-});
+};
 
 export const fetchPins = createAsyncThunk('globalSlice/pins', async () => {
     const response = await axios.get("/pins");
+    console.log(response)
     return response.data;
 });
 export const newPin = createAsyncThunk('globalSlice/newPin', async (newPin) => {
@@ -48,12 +49,8 @@ const globalSlice = createSlice({
     reducers: {
         currentPlaceSelected: (state, action) => {
             const id = action.payload;
-            setTimeout(() => {
-                state.currentPlaceId = id;
-            }, 10);
-        },
-        currentPlaceClosed: (state) => {
-            state.currentPlaceId = null;
+            state.currentPlaceId = id;
+            console.log(state.currentPlaceId)
         },
         newPlaceAdded: (state, action) => {
             const { lng, lat } = action.payload;
@@ -82,18 +79,13 @@ const globalSlice = createSlice({
                 state.loadingStatus = 'loading'
             })
             .addCase(fetchPins.fulfilled, (state, action) => {
-                const pins = {};
-                action.payload.forEach(pin => {
-                    pin[pin.id] = pin
-                });
-                state.loadingStatus = 'idle'
-                state.entities = pins;
+                state.pins = action.payload;
             })
             .addCase(newPin.pending, state => {
                 state.loadingStatus = 'loading'
             })
             .addCase(newPin.fulfilled, (state, action) => {
-                state.pins = [...state.pins, action.payload];
+                state.pins.push(action.payload);
                 state.newPlace = null;
             })
             .addCase(userLogined.pending, state => {
@@ -123,4 +115,22 @@ const globalSlice = createSlice({
     }
 });
 
+export const selectPins = state => state.globalSlice.pins;
+export const selectView = state => state.globalSlice.view;
+export const selectZoom = createSelector(
+    selectView,
+    (state) => state.zoom
+);
+export const selectCurrentUser = state => state.globalSlice.currentUser;
+export const selectCurrentPlaceId = state => state.globalSlice.currentPlaceId;
+
+
+export const {
+    currentPlaceSelected,
+    newPlaceAdded,
+    newPlaceClosed,
+    loginButtonClicked,
+    regButtonClicked,
+    logoutButtonCliked
+} = globalSlice.actions;
 export default globalSlice.reducer;
