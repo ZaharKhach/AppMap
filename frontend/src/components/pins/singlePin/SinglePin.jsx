@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   selectCurrentUser,
   selectCurrentPlaceId,
-  selectPins,
   selectZoom,
 } from "../../../slices/globalSlice";
 import { currentPlaceSelected } from "../../../slices/globalSlice";
@@ -27,7 +26,6 @@ const SinglePin = ({
 }) => {
   const dispatch = useDispatch();
 
-  const zoom = useSelector(selectZoom);
   const currentUser = useSelector(selectCurrentUser);
   const currentPlaceId = useSelector(selectCurrentPlaceId);
 
@@ -36,7 +34,7 @@ const SinglePin = ({
       <Marker latitude={latitude} longitude={longitude}>
         <LocationOn
           style={{
-            fontSize: zoom * 7,
+            fontSize: 5 * 7,
             cursor: "pointer",
             color: username == currentUser ? "tomato" : "slateblue",
           }}

@@ -1,150 +1,53 @@
 import React from "react";
 
-import Map, { Marker, Popup } from "react-map-gl";
-import LocationOn from "@material-ui/icons/LocationOn";
-import Rating from "@mui/material/Rating";
+import Map from "react-map-gl";
 
-import { useEffect, useState } from "react";
-
-import axios from "axios";
-
-import { format } from "timeago.js";
+import {  useState } from "react";
 
 import "./app.css";
 import Register from "./components/register";
 import Login from "./components/login";
 
+import { useDispatch } from "react-redux";
+
 import Pins from "./components/pins/Pins";
+import NewPin from "./components/newPin/NewPin";
+
+import { selectView } from "./slices/globalSlice";
+import { setViewState,newPlaceAdded } from "./slices/globalSlice";
+
+import { useSelector } from "react-redux";
 
 function App() {
-  const myStorage = window.localStorage;
+  const dispatch = useDispatch()
 
-  let zoom = 5;
-  const [viewState, setViewState] = React.useState({
-    longitude: 33.2304,
-    latitude: 48.5,
-    zoom: zoom,
-  });
+  const view = useSelector(selectView)
 
-  const [currentUser, setCurrentUser] = useState(myStorage.getItem('user'));
-
-  const [pins, setPins] = useState([]);
-  const [currentPlaceId, setCurrentPlaceId] = useState("");
-  const [newPlace, setNewPlace] = useState(null);
-
-  const [title, setTitle] = useState(null);
-  const [desc, setDesc] = useState(null);
-  const [rating, setRating] = useState(0);
-
-  const [showRegister, setShowRegister] = useState(false);
-  const [showLogin, setShowLogin] = useState(false);
-
-  useEffect(() => {
-    const getPins = async () => {
-      try {
-        const response = await axios.get("/pins");
-        setPins(response.data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    getPins();
-  }, []);
-
-  const handleMarkerClick = (id) => {
-    setTimeout(() => {
-      setCurrentPlaceId(id);
-    }, 10);
-  };
-
-  const handleOnClose = () => {
-    setCurrentPlaceId(null);
-  };
-
+  // const [showRegister, setShowRegister] = useState(false);
+  // const [showLogin, setShowLogin] = useState(false);
+  
   const handleAddClick = (e) => {
-    const { lng, lat } = e.lngLat;
-    console.log("Clicked coordinates:", lng, lat);
-    setNewPlace({ lng, lat });
+    dispatch(newPlaceAdded(e.lngLat))
   };
 
-  const handleNewPlaceOnClose = () => {
-    setNewPlace(null);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const newPin = {
-      username: currentUser,
-      title,
-      desc,
-      rating,
-      lat: newPlace.lat,
-      long: newPlace.lng,
-    };
-
-    try {
-      const response = await axios.post("/pins", newPin);
-      setPins([...pins, response.data]);
-      setNewPlace(null);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  const handleLogoutClick = () => {
-    myStorage.removeItem('user');
-    setCurrentUser(null)
-  }
+  // const handleLogoutClick = () => {
+  //   myStorage.removeItem('user');
+  //   setCurrentUser(null)
+  // }
   return (
     <>
-      <Map
-        mapboxAccessToken={process.env.REACT_APP_MAPTOKEN}
-        {...viewState}
-        onMove={(evt) => setViewState(evt.viewState)}
+      <Map mapboxAccessToken={process.env.REACT_APP_MAPTOKEN}
+        {...view}
+        onMove={(evt) => dispatch(setViewState(evt.viewState))}
         style={{ width: "100vw", height: "100vh", position: "relative" }}
         mapStyle="mapbox://styles/mapbox/streets-v9"
-        onDblClick={handleAddClick}
-      >
-        <Pins />
+        onDblClick={handleAddClick}>
 
-        {newPlace && (
-          <Popup
-            longitude={newPlace.lng}
-            latitude={newPlace.lat}
-            anchor="left"
-            offset={[10, -7]}
-            onClose={() => handleNewPlaceOnClose()}
-          >
-            <form onSubmit={handleSubmit}>
-              <label className="label">Title</label>
-              <input
-                placeholder="Enter a title"
-                onChange={(e) => setTitle(e.target.value)}
-              />
-              <label className="label">Review</label>
-              <textarea
-                placeholder="Say us something about this place."
-                onChange={(e) => setDesc(e.target.value)}
-              />
-              <label className="label">Rating</label>
-              <Rating
-                name="simple-controlled"
-                size="medium"
-                value={rating}
-                onChange={(e, newValue) => {
-                  setRating(newValue);
-                  console.log(rating);
-                }}
-              />
-              <button className="submitButton" type="submit">
-                Add pin
-              </button>
-            </form>
-          </Popup>
-        )}
-        {/* POPUP */}
+        <Pins />
+        <NewPin />
 
         {/* BUTTONS */}
-        {currentUser ? (
+        {/* {currentUser ? (
           <button
             className="button logout"
             onClick={handleLogoutClick}
@@ -170,7 +73,7 @@ function App() {
             setShowLogin={setShowLogin}
             myStorage={myStorage}
             setCurrentUser={setCurrentUser} />
-        }
+        } */}
         {/* BUTTONS */}
 
       </Map>

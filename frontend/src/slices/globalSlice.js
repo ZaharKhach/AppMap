@@ -10,9 +10,11 @@ const initialState = {
     pins: [],
     currentPlaceId: "",
     newPlace: null,
-    title: "",
-    desc: "",
-    rating: "",
+    newPlaceData: {
+        title: "",
+        desc: "",
+        rating: ""
+    },
     showRegister: false,
     showLogin: false,
     error: false,
@@ -71,6 +73,27 @@ const globalSlice = createSlice({
         logoutButtonCliked: state => {
             myStorage.removeItem('user');
             state.currentUser = null;
+        },
+        newPinTitle: (state, action) => {
+            state.newPlaceData = {
+                ...state.newPlaceData,
+                title: action.payload
+            }
+        },
+        newPinDesc: (state, action) => {
+            state.newPlaceData = {
+                ...state.newPlaceData,
+                desc: action.payload
+            }
+        },
+        newPinRating: (state, action) => {
+            state.newPlaceData = {
+                ...state.newPlaceData,
+                rating: action.payload
+            }
+        },
+        setViewState: (state, action) => {
+            state.view = action.payload;
         }
     },
     extraReducers: builder => {
@@ -123,6 +146,10 @@ export const selectZoom = createSelector(
 );
 export const selectCurrentUser = state => state.globalSlice.currentUser;
 export const selectCurrentPlaceId = state => state.globalSlice.currentPlaceId;
+export const selectNewPlace = state => state.globalSlice.newPlace;
+
+export const selectNewPlaceData = state => state.globalSlice.newPlaceData;
+
 
 
 export const {
@@ -131,6 +158,12 @@ export const {
     newPlaceClosed,
     loginButtonClicked,
     regButtonClicked,
-    logoutButtonCliked
+    logoutButtonCliked,
+
+    newPinTitle,
+    newPinDesc,
+    newPinRating,
+
+    setViewState
 } = globalSlice.actions;
 export default globalSlice.reducer;
