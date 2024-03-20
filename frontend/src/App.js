@@ -49,7 +49,7 @@ function App() {
     getPins();
   }, []);
 
-  const handleMarkerHover = (id) => {
+  const handleMarkerClick = (id) => {
     setTimeout(() => {
       setCurrentPlaceId(id);
     }, 10);
@@ -111,7 +111,7 @@ function App() {
                   cursor: "pointer",
                   color: pin.username == currentUser ? "tomato" : "slateblue",
                 }}
-                onClick={() => handleMarkerHover(pin._id)}
+                onClick={() => handleMarkerClick(pin._id)}
               />
             </Marker>
 
@@ -178,6 +178,9 @@ function App() {
             </form>
           </Popup>
         )}
+        {/* POPUP */}
+
+        {/* BUTTONS */}
         {currentUser ? (
           <button
             className="button logout"
@@ -205,6 +208,8 @@ function App() {
             myStorage={myStorage}
             setCurrentUser={setCurrentUser} />
         }
+        {/* BUTTONS */}
+
       </Map>
     </>
   );
