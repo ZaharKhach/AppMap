@@ -1,7 +1,5 @@
-import { createEntityAdapter, createSlice, createAsyncThunk, createSelector } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, createSelector } from "@reduxjs/toolkit";
 import axios from "axios";
-
-const entityAdapter = createEntityAdapter();
 
 const myStorage = window.localStorage;
 
@@ -55,11 +53,7 @@ const globalSlice = createSlice({
             console.log(state.currentPlaceId)
         },
         newPlaceAdded: (state, action) => {
-            const { lng, lat } = action.payload;
-            console.log("Clicked coordinates:", lng, lat);
-            state.newPlace = {
-                lng, lat
-            }
+            state.newPlace = action.payload;
         },
         newPlaceClosed: (state) => {
             state.newPlace = null;
