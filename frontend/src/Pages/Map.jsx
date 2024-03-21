@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import { Map as MapGl } from "react-map-gl";
 
@@ -22,6 +22,16 @@ const Map = () => {
     console.log("Clicked coordinates:", lng, lat);
     dispatch(newPlaceAdded({ lng, lat }));
   };
+
+  const el1 = document.querySelector(".mapboxgl-ctrl-bottom-left");
+  const el2 = document.querySelector(".mapboxgl-ctrl-attrib-inner");
+  useEffect(() => {
+    if (el1 && el2) {
+      el1.remove();
+      el2.remove();
+    }
+  }, [el1, el2]);
+
   return (
     <MapGl
       mapboxAccessToken={process.env.REACT_APP_MAPTOKEN}
